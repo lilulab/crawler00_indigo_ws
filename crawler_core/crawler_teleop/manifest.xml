@@ -1,0 +1,18 @@
+<package>
+  <description brief="crawler_teleop">
+
+     crawler_teleop
+
+  </description>
+  <author>crawler00</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/crawler_teleop</url>
+  <depend package="roscpp"/>
+  <depend package="rospy"/>
+  <depend package="joy"/>
+  <depend package="crawler_msgs"/>
+
+</package>
+
+

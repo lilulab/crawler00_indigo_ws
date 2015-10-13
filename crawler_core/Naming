@@ -1,0 +1,7 @@
+crawler_*	--- top level nodes
+base_*		--- for robot base only
+vision_*	--- for vision related stuff
+slam_*		--- for localization and mapping codes
+viz_*		--- for visualization
+sim_*		--- simulation
+

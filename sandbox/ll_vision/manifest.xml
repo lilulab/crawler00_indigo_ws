@@ -1,0 +1,22 @@
+<package>
+  <description brief="ll_vision">
+
+     ll_vision
+
+  </description>
+  <author>crawler00</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ll_vision</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="message_filters"/>
+  <depend package="tf"/>
+  <depend package="image_geometry"/>
+  <depend package="image_transport"/>
+
+</package>
+
+

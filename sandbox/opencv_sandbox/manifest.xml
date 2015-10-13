@@ -1,0 +1,20 @@
+<package>
+  <description brief="opencv_sandbox">
+
+     opencv_sandbox
+
+  </description>
+  <author>Crawler00</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/opencv_sandbox</url>
+  <depend package="sensor_msgs"/>
+  <depend package="cv_bridge"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="image_transport"/>
+  <depend package="image_geometry"/>
+
+</package>
+
+
