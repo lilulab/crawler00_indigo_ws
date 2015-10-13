@@ -67,15 +67,20 @@ public:
 
         vector<Vec4i> lines;  // Hough lines result
 
-        //vector<Vec3i> heading;  //robot heading vector
-        // int heading_average[2];
-        float heading[3];
-        float heading_average = 0;
-
         HoughLinesP( temp, lines, 1, CV_PI/180, 80, 30, 10 ); //Find lines in the Canny image
         size_t i;
 
         src.copyTo(temp);
+
+        //robot heading vector
+        // for each Vec4f element: [X_vec][Y_vec][heading_angle][heading_epsilon]
+        vector<Vec4f> heading;
+
+        // Resize according to how many line are detected.
+        heading.resize(lines.size());
+
+        // Average val holder
+        float heading_average = 0;
 
         for(i = 0; i < lines.size(); i++ ) {
         //line( color_temp, Point(lines[i][0], lines[i][1]),
@@ -85,19 +90,18 @@ public:
         Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 3, 8 ); //Draw
 
         // Calulate heading vector 
+        // for each Vec4f element: [X_vec][Y_vec][heading_angle][heading_epsilon]
         // x1-x2
-        heading[0] = (float)(lines[i][0] - lines[i][2]);
+        heading[i][0] = (float)(lines[i][0] - lines[i][2]);
         // y1-y2
-        heading[1]= (float)(lines[i][1] - lines[i][3]);
+        heading[i][1]= (float)(lines[i][1] - lines[i][3]);
 
         // Get heading angle in radian using atan2.
-        heading[3] = atan2(heading[0],heading[1]); //Yaw angle in radian
+        heading[i][3] = atan2(heading[i][0],heading[i][1]); //Yaw angle in radian
         //heading[3] = -heading[3] - 90;  //correct orientation. 
 
-        ROS_INFO("heading = [%f,%f]. atan2 = %f.",heading[0],heading[1],heading[3]);
-
         // get sum for calulate average out side the loop
-        heading_average += heading[3]; // get sum
+        heading_average += heading[i][3]; // get sum
 
       }
 
@@ -105,16 +109,32 @@ public:
         heading_average = heading_average/(float)lines.size(); // Calculate average
         
         // Calulate the pseudo Mode.
-        //float heading_epsilon[]; //Approximation error
+        float heading_pseudo_mode = 0;
+        int counter_good_heading = 0;
+        for(i = 0; i < lines.size(); i++ ) {
 
-        //for(i = 0; i < lines.size(); i++ ) {
-        //    heading[3] - heading_average;
-        //}
+            // for each Vec4f element: [X_vec][Y_vec][heading_angle][heading_epsilon]
+            //heading_epsilon = (heading_angle - heading_average)
+            heading[i][4] = fabs(heading[i][3] - heading_average); 
+
+            ROS_INFO("heading = [%f,%f], atan2 = %f, e = %f.",heading[i][0],heading[i][1],heading[i][3],heading[i][4]);
+            
+            // If epsilon is small, or means current heading are close to average.
+            if (heading[i][4] < 0.1) {
+                // Add sum
+                heading_pseudo_mode += heading[i][3];
+                // Add counter
+                counter_good_heading++;
+            }
+        }
+
+        // Calculate average to get pseudo mode number.
+        heading_pseudo_mode = heading_pseudo_mode / counter_good_heading;
 
 
-          ROS_INFO("Heading Average = %f(radian)",heading_average);
+        ROS_INFO("Heading Average = %f(radian) , Mode Average = %f.",heading_average, heading_pseudo_mode);
 
-        ROS_INFO("Found %d Edges!",i);
+        ROS_INFO("Found %d Edges! Mode Good Rate = %f/%d.",i, counter_good_heading, i);
         //ROS_INFO("Found %d Edges! Heading: [%d,%d]", i,heading_average[0],heading_average[1]);
           out = color_temp;
         addWeighted( temp, 0.5, color_temp, 0.5, 0.0, overlay);
