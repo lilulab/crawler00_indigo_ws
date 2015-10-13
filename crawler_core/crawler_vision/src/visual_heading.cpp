@@ -108,34 +108,80 @@ public:
         // Calulate the average = sum/size
         heading_average = heading_average/(float)lines.size(); // Calculate average
         
-        // Calulate the pseudo Mode.
-        float heading_pseudo_mode = 0;
-        int counter_good_heading = 0;
-        for(i = 0; i < lines.size(); i++ ) {
+        // Calulate the Mode.
+
+        // Heading val ranging from (-PI to +PI], that is (-3.14,3.14].
+        // Let's add PI to make it ranging from 0 to 2PI, (0,6.28].
+        // Then ceiling it after times 10, to (0, 63];
+        // Now Let's create a 63 column histogram.
+        // So each column covers 360/63~=5.7 degree range. should be ok? (LL)
+        // 
+
+        
+        float heading_mode; //the mode number of the vector
+        float heading_mode_belief; //histogram_max_count/line_found
+        static const int HISTOGRAM_SIZE = 63; // column size of histogram
+
+        vector<int> heading_histogram_count;   // histogram vector [count]
+        vector<float> heading_histogram_val;   // histogram vector [val_sum/avg]
+
+        heading_histogram_count.resize(HISTOGRAM_SIZE);
+        heading_histogram_val.resize(HISTOGRAM_SIZE);
+
+        int histogram_column; // temp for calulate which column the value should belone to.
+
+        static const int HEADING_MIN = -PI;
+        int histogram_max_count = 0;
+        int histogram_max_element = 0;
+
+        int temp_column_count =0; // histogram colum count
+        float temp_culumn_mean =0; // possible mode number of the heading
+
+        // loop through all elements in the unsortted vector
+        for( int i=0; i<lines.size(); i++ ) {
 
             // for each Vec4f element: [X_vec][Y_vec][heading_angle][heading_epsilon]
             //heading_epsilon = (heading_angle - heading_average)
-            heading[i][4] = fabs(heading[i][3] - heading_average); 
+            heading[i][4] = abs(heading[i][3] - heading_average); 
 
-            ROS_INFO("heading = [%f,%f], atan2 = %f, e = %f.",heading[i][0],heading[i][1],heading[i][3],heading[i][4]);
-            
-            // If epsilon is small, or means current heading are close to average.
-            if (heading[i][4] < 0.1) {
-                // Add sum
-                heading_pseudo_mode += heading[i][3];
-                // Add counter
-                counter_good_heading++;
-            }
+            histogram_column = (int) ceil((heading[i][3]+PI) *10); // range = [1,63]
+            histogram_column -= 1; // make it [0 to 62]
+
+            // add column count
+            heading_histogram_count[histogram_column] += 1;
+
+            // add culumn sum
+            heading_histogram_val[histogram_column] += heading[i][3];
+
+            //ROS_INFO("heading = %f(%f), column =  %d, count = %d, sum = %f",heading[i][3],histogram_column,heading_histogram_count[histogram_column],heading_histogram_val[histogram_column]);
+        }        
+
+        // Get the max element
+        for( int i=0; i<HISTOGRAM_SIZE; i++ ) {
+
+            temp_column_count = heading_histogram_count[i];
+            temp_culumn_mean = heading_histogram_val[i] / (float)heading_histogram_count[i];
+
+            // If current count greater than max, than update max element and count holder
+            if (temp_column_count > histogram_max_count) {
+                histogram_max_element = i;
+                histogram_max_count = temp_column_count;
+                heading_mode = temp_culumn_mean;
+            } 
+
+            // Debug
+            //ROS_INFO("column =  %d, count = %d, avg = %f, max_id = %d .", i, temp_column_count, temp_culumn_mean, histogram_max_element);
         }
 
-        // Calculate average to get pseudo mode number.
-        heading_pseudo_mode = heading_pseudo_mode / counter_good_heading;
+        // Debug
+        //ROS_INFO("Heading Average = %f(radian) , Mode = %f(radian), %f(degree). ",heading_average, heading_mode, (heading_mode*180/PI)+90);
 
+        // Debug
+        //ROS_INFO("Found %d Edges!",i);
 
-        ROS_INFO("Heading Average = %f(radian) , Mode Average = %f.",heading_average, heading_pseudo_mode);
+        heading_mode_belief = (float) histogram_max_count / (float) i;
+        ROS_INFO("Found %d Edges, Heading = %f(radian) | %f(degree), Belief = (%d/%d=%f).",(int)i, heading_mode, (heading_mode*180/PI)+90, histogram_max_count, i, heading_mode_belief);
 
-        ROS_INFO("Found %d Edges! Mode Good Rate = %f/%d.",i, counter_good_heading, i);
-        //ROS_INFO("Found %d Edges! Heading: [%d,%d]", i,heading_average[0],heading_average[1]);
           out = color_temp;
         addWeighted( temp, 0.5, color_temp, 0.5, 0.0, overlay);
         //overlay = temp;
@@ -206,7 +252,7 @@ public:
     
     visual_heading.RPY_degree.z = visual_heading.RPY_radian.z * 180 / PI;
 
-    visual_heading.RPY_degree.z = -visual_heading.RPY_degree.z -90;
+    visual_heading.RPY_degree.z = visual_heading.RPY_degree.z + 90;
 
      msg_pub_.publish(visual_heading);
     //saliency_img_pub.publish(out_msg.toImageMsg());
