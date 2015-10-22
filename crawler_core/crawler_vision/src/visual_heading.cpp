@@ -186,7 +186,7 @@ public:
         addWeighted( temp, 0.5, color_temp, 0.5, 0.0, overlay);
         //overlay = temp;
 
-        return heading_average;
+        return heading_mode;
     }
 /*
 
