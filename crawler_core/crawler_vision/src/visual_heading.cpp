@@ -186,8 +186,12 @@ public:
         addWeighted( temp, 0.5, color_temp, 0.5, 0.0, overlay);
         //overlay = temp;
 
+<<<<<<< HEAD
        // return heading_average;
 	return heading_mode; // modified by Miao, Oct.21,2015,22:38
+=======
+        return heading_mode;
+>>>>>>> 707a3894523df2b7b9afaad30773b10131ddb5db
     }
 /*
 
