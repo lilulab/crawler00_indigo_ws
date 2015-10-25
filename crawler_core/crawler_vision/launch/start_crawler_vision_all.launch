@@ -1,6 +1,6 @@
 <launch>
 
-<include file="$(find crawler_vision)/launch/start_crawler_usb_cam_all.launch" />
+<include file="$(find crawler_vision)/launch/start_crawler_cam_only.launch" />
 
 <node pkg="crawler_vision" type="visual_heading_node" name="visual_heading" output="screen" />
 

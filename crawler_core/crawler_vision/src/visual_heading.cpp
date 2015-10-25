@@ -23,7 +23,7 @@ int ratio = 3;
 int kernel_size = 3;
 
 
-static const std::string OPENCV_WINDOW = "Image window";
+// static const std::string OPENCV_WINDOW = "Image window";
 
 cv::Mat output,overlay;
 Mat temp, color_temp; //setup some temps
@@ -45,13 +45,13 @@ public:
     image_sub_ = it_.subscribe("/cam_up/image_raw", 1, &ImageConverter::imageCb, this);
     msg_pub_ = nh_.advertise<crawler_msgs::VisualHeading>("crawler/visual_heading", 1);
 
-    cv::namedWindow(OPENCV_WINDOW);
+    // cv::namedWindow(OPENCV_WINDOW);
 
   }
 
   ~ImageConverter()
   {
-    cv::destroyWindow(OPENCV_WINDOW);
+   //  cv::destroyWindow(OPENCV_WINDOW);
   }
 
     float getHeading(const cv::Mat& src, cv::Mat& out) {
@@ -180,13 +180,14 @@ public:
         //ROS_INFO("Found %d Edges!",i);
 
         heading_mode_belief = (float) histogram_max_count / (float) i;
-        ROS_INFO("Found %d Edges, Heading = %f(radian) | %f(degree), Belief = (%d/%d=%f).",(int)i, heading_mode, (heading_mode*180/PI)+90, histogram_max_count, i, heading_mode_belief);
-
+//        ROS_INFO("Found %d Edges, Heading = %f(radian) | %f(degree), Belief = (%d/%d=%f).",(int)i, heading_mode, (heading_mode*180/PI)+90, histogram_max_count, i, heading_mode_belief);
+// comment on Oct.23,2015 by Miao
           out = color_temp;
         addWeighted( temp, 0.5, color_temp, 0.5, 0.0, overlay);
         //overlay = temp;
 
-        return heading_average;
+       // return heading_average;
+	return heading_mode; // modified by Miao, Oct.21,2015,22:38
     }
 /*
 

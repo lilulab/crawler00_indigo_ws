@@ -5,6 +5,9 @@ setup.zsh
 .rosinstall
 .rosinstall.bak
 
+*.swp
+*.save
+
 
 build/
 bin/

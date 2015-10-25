@@ -11,6 +11,9 @@
        the first available device will be opened. -->
   <arg name="device_serial" default=""/>
 
+  <arg name="update_rate" default="10"/>
+
+
   <arg name="manager" value="$(arg camera)_nodelet_manager"/>
 
   <!-- Enable distance/depth/amplitude image rectification. If set to true,
@@ -41,6 +44,7 @@
           args="load pmd_camboard_nano/driver /$(arg manager)">
           <param name="device_serial" value="$(arg device_serial)"/>
           <param name="frame_id" value="$(arg frame_id)"/>
+          <param name="update_rate" value="$(arg update_rate)"/>
           <param name="flip_vertical" value="$(arg flip_vertical)"/>
     </node>
 
@@ -93,7 +97,7 @@
   </group>
 
   <!-- Publish transforms for depth frame and depth optical frame -->
-  <arg name="optical_rotate" value="0 0 0 -1.5707963267948966 0 -1.5707963267948966"/>
+  <arg name="optical_rotate" value="0 0 0 0 0 -2.35619445"/>
 
   <node pkg="tf" type="static_transform_publisher" name="$(arg camera)_base_link1"
         args="0 0 0 0 0 0 /$(arg camera)_link /$(arg camera)_frame 100"/>

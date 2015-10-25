@@ -143,17 +143,17 @@ float MMC_Comm::send_and_receive(int tMode, float tValue, int rMode) {
         case CMD_SET_POSITION:
             // Add position command.
             module_command->set_position(tValue);
-            //ROS_INFO("Send set_position = %f" , tValue);
+            ROS_INFO("Send set_position = %f" , tValue);
             break;
 
         case CMD_SET_VELOCITY:
             module_command->set_velocity(tValue);
-            //ROS_INFO("Send set_velocity = %f" , tValue);
+            ROS_INFO("Send set_velocity = %f" , tValue);
             break;
 
         case CMD_SET_TORQUE:
             module_command->set_torque(tValue);
-            //ROS_INFO("Send set_torque = %f" , tValue);
+            ROS_INFO("Send set_torque = %f" , tValue);
             break;
 
         default:
@@ -207,25 +207,25 @@ float MMC_Comm::send_and_receive(int tMode, float tValue, int rMode) {
             switch (rMode) {
             case FB_GET_POSITION:
                 rValue = message_in.feedback().position();
-                //ROS_INFO("...........................Get feedback_position = %f" , rValue);
+                ROS_INFO("...........................Get feedback_position = %f" , rValue);
                 break;
 
             case FB_GET_VELOCITY:
                 rValue = message_in.feedback().velocity();
-                //ROS_INFO("...........................Get feedback_velocity = %f" , rValue);
+                ROS_INFO("...........................Get feedback_velocity = %f" , rValue);
                 break;
 
             case FB_GET_TORQUE:
                 rValue = message_in.feedback().torque();
-                //ROS_INFO("...........................Get feedback_torque = %f" , rValue);
+                ROS_INFO("...........................Get feedback_torque = %f" , rValue);
                 break;
 
             default:
                 // Code
                 break;
             }
-            //ROS_INFO("Position feedback: %f",message_in.feedback().position());
-            //ROS_INFO("Velocity feedback: %f",message_in.feedback().velocity());
+            ROS_INFO("Position feedback: %f",message_in.feedback().position());
+            ROS_INFO("Velocity feedback: %f",message_in.feedback().velocity());
         } else {
             //std::cout << "none" << std::endl;
             //ROS_INFO("flag5");
@@ -280,8 +280,6 @@ void jointCmdCallback(const crawler_msgs::JointCmd::ConstPtr& joint_cmd)
 {
     is_joy_updating = 1;
     joint_cmd_current_time = joint_cmd->header.stamp;
-
-    //ROS_INFO("----------------In Joystick Callback");
 
     //ROS_INFO("ROS is OK.........WhlLft = %f",joint_cmd->jointCmdVel[MMC_WhlLft_JointID]);
     //ROS_INFO("ROS is OK.........WhlLft = %f",joint_cmd->jointCmdVel[MMC_WhlRgt_JointID]);
@@ -425,21 +423,19 @@ int main(int argc, char **argv)
         //ROS_INFO("joint_cmd_current_time = %f",joint_cmd_current_time.toSec());
         //ROS_INFO("joint_cmd_last_time = %f",joint_cmd_last_time.toSec());
 
-        if ((joint_cmd_current_time == joint_cmd_last_time) | (is_joy_updating == 0)){
+        if (joint_cmd_current_time == joint_cmd_last_time){
 
-          //ROS_INFO("No Joystick update...");
+          ROS_INFO("No Joystick update");
 
           // Wheel
-          /*
-          fb_values[MMC_WhlLft_JointID] = mmc_comm_WhlRgt.send_and_receive(CMD_SET_VELOCITY,
-                                          0,
-                                          FB_GET_VELOCITY);
+          // fb_values[MMC_WhlLft_JointID] = mmc_comm_WhlRgt.send_and_receive(CMD_SET_VELOCITY,
+          //                                 0,
+          //                                 FB_GET_VELOCITY);
 
-          fb_values[MMC_WhlRgt_JointID] = mmc_comm_WhlLft.send_and_receive(CMD_SET_VELOCITY,
-                                          0,
-                                          FB_GET_VELOCITY);
-        */
-	}
+          // fb_values[MMC_WhlRgt_JointID] = mmc_comm_WhlLft.send_and_receive(CMD_SET_VELOCITY,
+          //                                 0,
+          //                                 FB_GET_VELOCITY);
+        }
 
         joint_pub.publish(joint_state);
         vel_pub.publish(pos);
@@ -454,11 +450,10 @@ int main(int argc, char **argv)
 
     }//end while
 
-    mmc_comm_WhlRgt.send_and_receive(CMD_SET_VELOCITY,0,CMD_SET_VELOCITY);
-    mmc_comm_WhlLft.send_and_receive(CMD_SET_VELOCITY,0,FB_GET_VELOCITY);
+    mmc_comm_WhlRgt.send_and_receive(CMD_SET_VELOCITY,0,0);
+    mmc_comm_WhlLft.send_and_receive(CMD_SET_VELOCITY,0,0);
     // Delete all global objects allocated by libprotobuf.
     google::protobuf::ShutdownProtobufLibrary();
 
     return 0;
 }//end main
-
